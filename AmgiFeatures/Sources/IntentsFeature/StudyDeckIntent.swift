@@ -7,6 +7,9 @@
 
 public import AppIntents
 import Foundation
+#if os(iOS)
+private import UIKit
+#endif
 
 /// "Study Korean in Amgi" — opens the app straight into the reviewer.
 public struct StudyDeckIntent: AppIntent {
@@ -26,10 +29,15 @@ public struct StudyDeckIntent: AppIntent {
         Summary("Study \(\.$deck)")
     }
 
-    public func perform() async throws -> some IntentResult & OpensIntent {
+    public func perform() async throws -> some IntentResult {
         guard let deckId = deck.deckId,
               let url = URL(string: "amgi://review?deckId=\(deckId)")
         else { throw AmgiIntentError.badDeckId }
-        return .result(opensIntent: OpenURLIntent(url))
+        #if os(iOS)
+        await MainActor.run {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
+        #endif
+        return .result()
     }
 }
