@@ -53,7 +53,8 @@ jobs:
         run: rustup toolchain install "$NIGHTLY_TOOLCHAIN" --profile minimal --component rust-src
 
       - name: Cache Rust build artifacts
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        id: rust-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: |
             ~/.cargo/registry
@@ -63,7 +64,7 @@ jobs:
           key: ${{ runner.os }}-rust-1.95-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-rust-1.95-
-
+            
       - name: Install Homebrew dependencies
         run: |
           brew install protobuf swift-protobuf
