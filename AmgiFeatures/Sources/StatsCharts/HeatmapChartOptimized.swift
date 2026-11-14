@@ -151,21 +151,37 @@ private extension HeatmapChartOptimized {
                 }
 
                 ScrollViewReader { scrollProxy in
-                    ScrollView(.horizontal, showsIndicators: !isCompact) {
-                        VStack(alignment: .leading, spacing: 0) {
-                            monthHeaderView()
-                            gridView()
+                    if #available(iOS 18.0, macOS 15.0, watchOS 11.0, *) {
+                        ScrollView(.horizontal, showsIndicators: !isCompact) {
+                            VStack(alignment: .leading, spacing: 0) {
+                                monthHeaderView()
+                                gridView()
+                            }
+                            .id("heatmapContent")
                         }
-                        .id("heatmapContent")
+                        .defaultScrollAnchor(.trailing)
+                        .onScrollGeometryChange(
+                            for: CGFloat.self,
+                            of: { geometry in geometry.contentOffset.x },
+                            action: { _, newValue in
+                                handleScroll(offset: newValue)
+                            }
+                        )
+                    } else {
+                        ScrollView(.horizontal, showsIndicators: !isCompact) {
+                            VStack(alignment: .leading, spacing: 0) {
+                                monthHeaderView()
+                                gridView()
+                            }
+                            .id("heatmapContent")
+                            .onGeometryChange(for: CGFloat.self) { proxy in
+                                -proxy.frame(in: .scrollView).minX
+                            } action: { newValue in
+                                handleScroll(offset: newValue)
+                            }
+                        }
+                        .defaultScrollAnchor(.trailing)
                     }
-                    .defaultScrollAnchor(.trailing)
-                    .onScrollGeometryChange(
-                        for: CGFloat.self,
-                        of: { geometry in geometry.contentOffset.x },
-                        action: { _, newValue in
-                            handleScroll(offset: newValue)
-                        }
-                    )
                 }
 
                 legendView()
