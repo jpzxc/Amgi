@@ -21,7 +21,7 @@ public enum AmgiModule {
             destinations: watchOS ? libraryDestinations.union(Destinations.watchOS) : libraryDestinations,
             product: tests ? .unitTests : .staticFramework,
             bundleId: "com.amgiapp.\(name)",
-            deploymentTargets: .multiplatform(iOS: "18.0", macOS: "15.0", watchOS: watchOS ? "11.0" : nil),
+            deploymentTargets: .multiplatform(iOS: "17.0", macOS: "15.0", watchOS: watchOS ? "11.0" : nil),
             sources: [.glob(.relativeToManifest(sourcePath))],
             resources: resources,
             dependencies: dependencies,
