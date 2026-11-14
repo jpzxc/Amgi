@@ -20,6 +20,7 @@ public struct DeckHeroTile: View {
     public let size: CGFloat
 
     @Environment(\.palette) private var palette
+    @Environment(\.self) private var environment
 
     public init(tone: Color, deckName: String, size: CGFloat = 56) {
         self.tone = tone
@@ -97,7 +98,20 @@ public struct DeckHeroTile: View {
     }
 
     private func mixed(_ lhs: Color, with rhs: Color, by fraction: Double) -> Color {
-        lhs.mix(with: rhs, by: fraction, in: .perceptual)
+        if #available(iOS 18.0, macOS 15.0, watchOS 11.0, *) {
+            return lhs.mix(with: rhs, by: fraction, in: .perceptual)
+        }
+        let start = lhs.resolve(in: environment)
+        let end = rhs.resolve(in: environment)
+        let t = Float(fraction)
+        return Color(
+            Color.Resolved(
+                red: start.red + (end.red - start.red) * t,
+                green: start.green + (end.green - start.green) * t,
+                blue: start.blue + (end.blue - start.blue) * t,
+                opacity: start.opacity + (end.opacity - start.opacity) * t
+            )
+        )
     }
 }
 
