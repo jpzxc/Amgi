@@ -77,6 +77,17 @@ jobs:
           chmod +x ./scripts/build-xcframework.sh
           ./scripts/build-xcframework.sh
 
+      - name: Save Rust build artifacts
+        if: steps.rust-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            anki-bridge-rs/target
+            anki-upstream/out
+          key: ${{ steps.rust-cache.outputs.cache-primary-key }}
+
       - name: Generate Swift protobuf types
         run: |
           chmod +x ./scripts/generate-protos.sh
