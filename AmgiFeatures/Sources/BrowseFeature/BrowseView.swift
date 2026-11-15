@@ -589,6 +589,19 @@ struct NoteRowView: View {
     }
 }
 
+private struct SearchFocusModifier: ViewModifier {
+    var focus: FocusState<Bool>.Binding
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 18.0, macOS 15.0, *) {
+            content.searchFocused(focus)
+        } else {
+            content
+        }
+    }
+}
+
 // MARK: - Preview
 
 #if DEBUG
