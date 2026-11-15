@@ -93,7 +93,7 @@ package struct ReaderLibraryView: View {
             placement: .navigationBarDrawer(displayMode: .automatic),
             prompt: "Search books"
         )
-        .searchFocused($searchFocused)
+        .modifier(SearchFocusModifier(focus: $searchFocused))
         .onChange(of: searchText) { _, _ in model.rebuildViewData(searchText: searchText, sortMode: sortMode) }
         .onChange(of: sortModeRaw) { _, _ in model.rebuildViewData(searchText: searchText, sortMode: sortMode) }
         .onChange(of: deckName) { _, _ in model.startReload(searchText: searchText, sortMode: sortMode) }
