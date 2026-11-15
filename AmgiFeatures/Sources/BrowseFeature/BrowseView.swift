@@ -45,7 +45,7 @@ package struct BrowseView: View {
         @Bindable var model = model
         decoratedContent
             .searchable(text: $model.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search notes...")
-            .searchFocused($searchFocused)
+            .modifier(SearchFocusModifier(focus: $searchFocused))
             .task { await model.loadInitial() }
             // Keyed on the assembled query so text, deck, and tag changes all
             // restart one search — SwiftUI cancels the previous run, which is
