@@ -41,6 +41,26 @@ struct MainTabView: View {
     @State private var selection: MainTab = .library
 
     var body: some View {
+        tabBar
+            .background {
+                Button("Settings") { selection = .settings }
+                    .keyboardShortcut(",", modifiers: .command)
+                    .opacity(0)
+                    .accessibilityHidden(true)
+            }
+    }
+
+    @ViewBuilder
+    private var tabBar: some View {
+        if #available(iOS 18.0, macOS 15.0, *) {
+            modernTabView
+        } else {
+            legacyTabView
+        }
+    }
+
+    @available(iOS 18.0, macOS 15.0, *)
+    private var modernTabView: some View {
         TabView(selection: $selection) {
             // 1. Library
             Tab("Library", systemImage: "rectangle.stack", value: MainTab.library) {
@@ -78,12 +98,59 @@ struct MainTabView: View {
                 }
             }
         }
-        .background {
-            Button("Settings") { selection = .settings }
-                .keyboardShortcut(",", modifiers: .command)
-                .opacity(0)
-                .accessibilityHidden(true)
-        }
     }
 
+    private var legacyTabView: some View {
+        TabView(selection: $selection) {
+            // 1. Library
+            NavigationStack {
+                DeckListView(
+                    onSwitchProfile: { await switchProfile(to: $0) },
+                    onSync: { startSync() },
+                    onImport: onImport
+                )
+            }
+            .tabItem {
+                Label("Library", systemImage: "rectangle.stack")
+            }
+            .tag(MainTab.library)
+
+            // 2. Reader and 3. Study both live in ReaderFeature.
+            if showReaderTab {
+                NavigationStack {
+                    ReaderLibraryView(refreshID: refreshID)
+                }
+                .tabItem {
+                    Label("Read", systemImage: "book")
+                }
+                .tag(MainTab.read)
+            }
+
+            NavigationStack {
+                StudyLandingView(onSelectDeck: onSelectStudyDeck)
+            }
+            .tabItem {
+                Label("Study", systemImage: "graduationcap")
+            }
+            .tag(MainTab.study)
+
+            // 4. Stats
+            NavigationStack {
+                StatsDashboardView(refreshID: refreshID)
+            }
+            .tabItem {
+                Label("Stats", systemImage: "chart.bar")
+            }
+            .tag(MainTab.stats)
+
+            // 5. Settings
+            NavigationStack {
+                SettingsView(onSwitchProfile: { await switchProfile(to: $0) })
+            }
+            .tabItem {
+                Label("Settings", systemImage: "gearshape")
+            }
+            .tag(MainTab.settings)
+        }
+    }
 }
