@@ -32,12 +32,12 @@ struct ContinueReadingSection: View {
                             if let book = bookForId(item.id) {
                                 NavigationLink {
                                     ReaderBookDetailView(book: book, progress: progress)
-                                        .navigationTransition(.zoom(sourceID: item.id, in: coverTransition))
+                                        .modifier(ZoomNavigationTransitionModifier(id: item.id, namespace: coverTransition))
                                 } label: {
                                     ContinueReadingCard(item: item)
                                 }
                                 .buttonStyle(.pressScale)
-                                .matchedTransitionSource(id: item.id, in: coverTransition)
+                                .modifier(MatchedTransitionSourceModifier(id: item.id, namespace: coverTransition))
                             } else {
                                 ContinueReadingCard(item: item)
                             }
@@ -55,5 +55,33 @@ struct ContinueReadingSection: View {
             .tracking(1.4)
             .foregroundStyle(palette.textSecondary)
             .padding(.horizontal, 16)
+    }
+}
+
+private struct ZoomNavigationTransitionModifier: ViewModifier {
+    let id: String
+    let namespace: Namespace.ID
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 18.0, macOS 15.0, *) {
+            content.navigationTransition(.zoom(sourceID: id, in: namespace))
+        } else {
+            content
+        }
+    }
+}
+
+private struct MatchedTransitionSourceModifier: ViewModifier {
+    let id: String
+    let namespace: Namespace.ID
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 18.0, macOS 15.0, *) {
+            content.matchedTransitionSource(id: id, in: namespace)
+        } else {
+            content
+        }
     }
 }
